@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Live &amp; Enjoy · 活在當下</title>
+  <meta name="description" content="A new quote about enjoying life every 6 hours, in English and Traditional Chinese.">
+  <meta name="theme-color" content="#f6c7a1">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="slot-morning">
+  <div class="page">
+    <header class="top">
+      <p class="brand">Live &amp; Enjoy <span lang="zh-Hant-HK">· 活在當下</span></p>
+      <p class="when" id="when" aria-live="off"></p>
+    </header>
+
+    <main id="main">
+      <figure class="card" id="card" aria-live="polite">
+        <blockquote class="quote">
+          <p class="quote-en" id="quote-en"></p>
+          <p class="quote-zh" id="quote-zh" lang="zh-Hant-HK"></p>
+        </blockquote>
+        <figcaption class="credit">
+          <span class="author" id="author"></span>
+          <span class="source" id="source"></span>
+        </figcaption>
+      </figure>
+
+      <div class="actions">
+        <button type="button" class="btn" id="copy-btn">
+          <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> Copy <span lang="zh-Hant-HK">複製</span>
+        </button>
+        <button type="button" class="btn" id="share-btn" hidden>
+          <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg> Share <span lang="zh-Hant-HK">分享</span>
+        </button>
+      </div>
+      <p class="toast" id="toast" role="status" aria-live="polite"></p>
+
+      <p class="countdown" id="countdown">
+        <span class="cd-en" id="cd-en"></span>
+        <span class="cd-zh" id="cd-zh" lang="zh-Hant-HK"></span>
+      </p>
+    </main>
+
+    <footer class="foot">
+      <p>A new quote every 6 hours, at 00:00, 06:00, 12:00 and 18:00 your time. Go outside, call a friend, <span class="nw">enjoy today.</span></p>
+      <p lang="zh-Hant-HK">每 6 小時換一句，按你當地時間 00:00、06:00、12:00、18:00 更新。<span class="nw">出去走走，</span><span class="nw">約個朋友，</span><span class="nw">好好享受今天。</span></p>
+      <p class="fake" id="fake-note" hidden></p>
+    </footer>
+  </div>
+
+  <noscript><p class="noscript">Please enable JavaScript to see today's quote. 請啟用 JavaScript 以顯示今日語錄。</p></noscript>
+  <script src="quotes.js"></script>
+  <script src="rotation.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
