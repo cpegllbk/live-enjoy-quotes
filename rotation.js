@@ -2,10 +2,17 @@
  * Live & Enjoy rotation logic (no DOM). Works in the browser (window.LiveEnjoyRotation)
  * and in Node (require("./rotation.js")).
  *
- * The day is split into 4 local-time slots: 00:00, 06:00, 12:00, 18:00.
- * slotIndex = (days since 2024-01-01, local calendar) * 4 + slot of day.
+ * Each local-time hour is one slot: the quote changes at the top of every hour (xx:00)
+ * in the viewer's local time.
+ * slotIndex = (days since 2024-01-01, local calendar) * 24 + local hour of day.
  * The quote is order[slotIndex mod N], where order is a fixed, seeded shuffle of 0..N-1.
- * So every N consecutive slots show N different quotes, then the cycle repeats.
+ * So every N consecutive hours show N different quotes (67 quotes = a 67-hour cycle),
+ * then the cycle repeats.
+ *
+ * DST: the index uses the local calendar date and local hour, not elapsed milliseconds.
+ * When clocks spring forward, the skipped hour simply never shows (the index jumps by 2,
+ * still a different quote). When clocks fall back, the repeated hour keeps the same quote
+ * for both passes, and the countdown runs to the next real change.
  */
 (function (root, factory) {
   var api = factory();
@@ -17,22 +24,40 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  var SLOT_HOURS = 6;
-  var SLOTS_PER_DAY = 24 / SLOT_HOURS; // 4
+  var SLOT_HOURS = 1;
+  var SLOTS_PER_DAY = 24 / SLOT_HOURS; // 24
   var EPOCH_UTC = Date.UTC(2024, 0, 1); // calendar epoch, used only for day counting
   var DAY_MS = 86400000;
   var DEFAULT_SEED = 20261008;
 
-  var SLOTS = [
-    { key: "night", en: "Night", zh: "夜晚" },
-    { key: "morning", en: "Morning", zh: "早晨" },
-    { key: "afternoon", en: "Afternoon", zh: "午後" },
-    { key: "evening", en: "Evening", zh: "黃昏" }
+  /*
+   * Time-of-day themes (label + background gradient). The quote changes every hour;
+   * the theme follows the local hour so the background drifts through the day.
+   * `from` is the first local hour of each period, in order.
+   */
+  var PERIODS = [
+    { key: "night", en: "Night", zh: "夜深", from: 0 },
+    { key: "dawn", en: "Dawn", zh: "清晨", from: 5 },
+    { key: "morning", en: "Morning", zh: "早晨", from: 8 },
+    { key: "afternoon", en: "Afternoon", zh: "午後", from: 12 },
+    { key: "sunset", en: "Sunset", zh: "日落", from: 16 },
+    { key: "evening", en: "Evening", zh: "晚上", from: 19 },
+    { key: "night", en: "Night", zh: "夜深", from: 22 }
   ];
 
-  /** Slot of the day (0..3) in the date's local time. */
+  /** Slot of the day (0..23) = the local hour. */
   function slotOfDay(date) {
     return Math.floor(date.getHours() / SLOT_HOURS);
+  }
+
+  /** Time-of-day theme for the date's local hour. */
+  function periodOf(date) {
+    var h = date.getHours();
+    var p = PERIODS[0];
+    for (var i = 0; i < PERIODS.length; i++) {
+      if (h >= PERIODS[i].from) p = PERIODS[i];
+    }
+    return p;
   }
 
   /** Whole local calendar days since 2024-01-01 (DST-safe: uses the calendar date, not elapsed ms). */
@@ -41,7 +66,7 @@
     return Math.round((utcMidnight - EPOCH_UTC) / DAY_MS);
   }
 
-  /** Global slot counter: increases by exactly 1 every 6 local hours. */
+  /** Global slot counter: increases by 1 at the top of every local hour (DST-safe, see header). */
   function slotIndex(date) {
     return dayNumber(date) * SLOTS_PER_DAY + slotOfDay(date);
   }
@@ -91,7 +116,10 @@
     return new Date(date.getFullYear(), date.getMonth(), date.getDate(), slotOfDay(date) * SLOT_HOURS, 0, 0, 0);
   }
 
-  /** Local start of the next slot (hour 24 rolls over to the next day, month and year). */
+  /**
+   * Local start of the next slot, i.e. the next top of the hour. Hour 24 rolls over to the
+   * next day, month and year. A skipped DST hour resolves to the first real hour after it.
+   */
   function nextSlotStart(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate(), (slotOfDay(date) + 1) * SLOT_HOURS, 0, 0, 0);
   }
@@ -100,7 +128,7 @@
     return (n < 10 ? "0" : "") + n;
   }
 
-  /** Countdown labels, e.g. { en: "3h 12m", zh: "3 小時 12 分鐘" }. Under an hour shows minutes and seconds. */
+  /** Countdown labels, e.g. { en: "42m 05s", zh: "42 分 05 秒" }. An hour or more (DST fall-back) shows hours and minutes. */
   function formatCountdown(ms) {
     var total = Math.max(0, Math.ceil(ms / 1000));
     var h = Math.floor(total / 3600);
@@ -130,9 +158,10 @@
 
   return {
     SLOT_HOURS: SLOT_HOURS,
-    SLOTS: SLOTS,
+    PERIODS: PERIODS,
     DEFAULT_SEED: DEFAULT_SEED,
     slotOfDay: slotOfDay,
+    periodOf: periodOf,
     dayNumber: dayNumber,
     slotIndex: slotIndex,
     shuffledOrder: shuffledOrder,

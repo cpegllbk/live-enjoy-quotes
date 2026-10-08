@@ -14,7 +14,7 @@
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang HK", "Microsoft JhengHei", sans-serif;
 }
 
-/* Slot themes */
+/* Time-of-day themes (chosen from the local hour, see PERIODS in rotation.js) */
 body.slot-night {
   --bg: linear-gradient(165deg, #0f1430 0%, #232a5c 55%, #3a2f6b 100%);
   --text: #f4f1ff;
@@ -26,6 +26,10 @@ body.slot-night {
   --btn-text: #171b3d;
   --focus: #ffd27a;
 }
+body.slot-dawn {
+  --bg: linear-gradient(165deg, #f3d9e8 0%, #f9c9b6 45%, #bcd3f2 100%);
+  --accent: #9a3b5c;
+}
 body.slot-morning {
   --bg: linear-gradient(160deg, #fff1d6 0%, #ffd8c2 45%, #cfe8ff 100%);
   --accent: #a3412b;
@@ -33,6 +37,11 @@ body.slot-morning {
 body.slot-afternoon {
   --bg: linear-gradient(160deg, #fff6c9 0%, #c8f0dc 50%, #9fd8f5 100%);
   --accent: #1f6b5a;
+}
+body.slot-sunset {
+  --bg: linear-gradient(165deg, #ffc98f 0%, #ff9f8a 50%, #c792c9 100%);
+  --card: rgba(255, 255, 255, 0.66);
+  --accent: #9c3320;
 }
 body.slot-evening {
   --bg: linear-gradient(165deg, #2e1840 0%, #6e2c5a 50%, #a44a4f 100%);

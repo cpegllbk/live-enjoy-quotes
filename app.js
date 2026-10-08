@@ -22,6 +22,12 @@
 
   var current = { slotIndex: null, quote: null };
 
+  // Browser UI colour (mobile address bar) for each time-of-day theme in styles.css.
+  var THEME_COLORS = {
+    night: "#0f1430", dawn: "#f3d9e8", morning: "#fff1d6",
+    afternoon: "#fff6c9", sunset: "#ffc98f", evening: "#2e1840"
+  };
+
   function dateLabel(d) {
     var en, zh;
     try {
@@ -34,17 +40,24 @@
     return en + (zh ? " · " + zh : "");
   }
 
+  function hourLabel(d) {
+    return ("0" + R.slotStart(d).getHours()).slice(-2) + ":00";
+  }
+
   function showQuote(d) {
-    var slot = R.SLOTS[R.slotOfDay(d)];
+    var period = R.periodOf(d);
     var quote = QUOTES[R.quoteIndexFor(d, QUOTES.length)];
     current.quote = quote;
 
-    document.body.className = "slot-" + slot.key;
-    $("when").textContent = slot.en + " · " + slot.zh + " · " + dateLabel(d);
+    document.body.className = "slot-" + period.key;
+    var meta = $("theme-color");
+    if (meta && THEME_COLORS[period.key]) meta.setAttribute("content", THEME_COLORS[period.key]);
+    $("when").textContent = period.en + " · " + period.zh + " · " + hourLabel(d) + " · " + dateLabel(d);
 
     var card = $("card");
     card.classList.toggle("is-long", quote.en.length > 150 || quote.zh.length > 70);
-    $("quote-en").textContent = quote.en;
+    // The card already wraps the quote in “ ”, so inner double quotes become single ones (display only).
+    $("quote-en").textContent = quote.en.replace(/“/g, "‘").replace(/”/g, "’");
     $("quote-zh").textContent = quote.zh;
     $("author").textContent = quote.author + (quote.authorZh && quote.authorZh !== quote.author ? " · " + quote.authorZh : "");
     $("source").textContent = quote.source === "Original" ? "Original line for this app · 本 app 原創" : quote.source;
