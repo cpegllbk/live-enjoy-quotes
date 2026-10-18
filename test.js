@@ -154,7 +154,7 @@ test("?now= parsing (local time, rejects bad input)", () => {
 });
 
 test("DST transition days: quote still changes on the hour, never goes backwards", () => {
-  // Meaningful under TZ=America/New_York or Europe/London (see the next test); harmless in Asia/Taipei.
+  // Meaningful under TZ=America/New_York or Europe/London (see the next test); harmless in UTC+8 (no DST).
   for (const day of [at(2026, 3, 8), at(2026, 11, 1), at(2026, 3, 29), at(2026, 10, 25)]) {
     let d = new Date(day.getFullYear(), day.getMonth(), day.getDate() - 1, 12);
     for (let i = 0; i < 36; i++) {
